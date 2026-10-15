@@ -2,7 +2,7 @@
 
 **Project Name:** Myinder  
 **Project Type:** Responsive Student Networking Landing Page  
-**Reference Website:** https://froshfeed.com/  
+
 **Frontend Stack:** React, TypeScript, Vite, Tailwind CSS  
 **Status:** Frontend development
 
