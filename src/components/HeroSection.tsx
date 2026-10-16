@@ -12,6 +12,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { useState } from "react";
 
@@ -65,13 +66,13 @@ export default function HeroSection() {
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <a
+              <Link
                 id="get-started"
-                href="#explore"
+                to="/create"
                 className="inline-flex items-center gap-2 rounded-full bg-[#FF650F] px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-orange-100 transition hover:-translate-y-1 hover:bg-[#ed5705]"
               >
                 Get Started Today <ArrowRight size={17} />
-              </a>
+              </Link>
 
               <a
                 href="#how-it-works"
