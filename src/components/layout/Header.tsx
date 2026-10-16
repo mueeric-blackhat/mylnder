@@ -1,52 +1,79 @@
-import { useState } from "react";
-import { Code2, Users, Menu, X } from "lucide-react";
 
-const navClass = ({ isActive }: { isActive: boolean }) =>
-  `text-sm font-medium transition-colors ${
-    isActive ? "text-blue-600" : "text-slate-600 hover:text-blue-600"
-  }`;
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Menu, X,  } from "lucide-react";
+import logo from "../../assets/logo.png";
+
+const navigation = [
+  { name: "Home", href: "/" },
+  { name: "About", href: "/about" },
+  { name: "How It Works", href: "/how-it-works" },
+ 
+];
 
 export default function Header() {
-  const [open, setOpen] = useState(false);
-  const closeMenu = () => setOpen(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    
-      <header className="relative z-20 mx-auto flex max-w-[1200px] items-center justify-between px-6 py-5 lg:px-12">
-        <a href="#" className="flex items-center gap-2">
-          <span className="relative flex items-center text-[#FF650F]">
-            <Users size={30} strokeWidth={3} />
-          </span>
-          <span className="text-[23px] font-extrabold tracking-tight">
-            myinder
-          </span>
-        </a>
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white shadow-sm">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        {/* Logo */}
+        
+          <img
+            src={logo}
+            alt="Myinder"
+            className="h-10 w-auto max-w-[270px] object-contain"
+          />
+        
 
-        <nav className="hidden items-center gap-8 md:flex">
-          {["Home", "About", "How It Works", "Pricing", "FAQ"].map(
-            (item) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase().replaceAll(" ", "-")}`}
-                className={`border-b-2 pb-2 text-[13px] font-semibold transition ${
-                  item === "Home"
-                    ? "border-[#FF650F] text-[#10141D]"
-                    : "border-transparent text-slate-600 hover:border-[#FF650F] hover:text-[#FF650F]"
-                }`}
-              >
-                {item}
-              </a>
-            )
-          )}
+        {/* Desktop navigation */}
+        <nav className="hidden items-center gap-7 md:flex">
+          {navigation.map((item) => (
+            <Link
+              key={item.name}
+              to={item.href}
+              className="text-sm font-semibold text-slate-700 transition hover:text-amber-600"
+            >
+              {item.name}
+            </Link>
+          ))}
+
+          
         </nav>
 
-        <a
-          href="#get-started"
-          className="rounded-full bg-[#FF650F] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#ed5705]"
+        {/* Mobile menu button */}
+        <button
+          type="button"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="rounded-lg p-2 text-[#102A43] hover:bg-slate-100 md:hidden"
         >
-          Get Started
-        </a>
-      </header>
+          {menuOpen ? <X size={26} /> : <Menu size={26} />}
+        </button>
+      </div>
 
+      {/* Mobile navigation */}
+      {menuOpen && (
+        <nav className="border-t border-slate-200 bg-white px-4 py-4 md:hidden">
+          <div className="flex flex-col gap-2">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg px-4 py-3 font-medium text-slate-700 hover:bg-slate-100"
+              >
+                {item.name}
+              </Link>
+            ))}
+
+           
+          
+          
+          </div>
+        </nav>
+      )}
+    </header>
   );
 }

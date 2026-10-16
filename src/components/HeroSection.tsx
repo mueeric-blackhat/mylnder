@@ -14,8 +14,11 @@ import {
 } from "lucide-react";
 
 import { useState } from "react";
+import { motion} from "framer-motion";
+import campusFriends from "../assets/campusFriends.png";
+import campusCommunity from "../assets/campusCommunity.png";
+import logo from "../assets/logo.png";
 
-{}
 
 export default function HeroSection() {
   const [activeTab, setActiveTab] = useState("Home");
@@ -44,9 +47,7 @@ export default function HeroSection() {
         <div className="grid items-center gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-4">
           {/* LEFT: Editable hero text */}
           <div className="relative z-10 max-w-[510px]">
-            <span className="inline-flex rounded-full bg-[#FFF0E5] px-4 py-2 text-xs font-semibold text-[#F35D13]">
-              Your Campus. Your People.
-            </span>
+            
 
             <h1 className="mt-5 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-[48px]">
               Find Friends,
@@ -87,16 +88,16 @@ export default function HeroSection() {
             {/* Community proof */}
             <div className="mt-7 flex items-center gap-3">
               <div className="flex -space-x-3">
-                 {/*  {[campusFriends, campusCommunity, campusFriends, campusCommunity].map(
+                   {[campusFriends, campusCommunity, campusFriends, campusCommunity].map(
                 (photo, index) => (
                   <img
                     key={index}
                     src={photo}
                     alt={`Myinder student ${index + 1}`}
-                    className="h-9 w-9 rounded-full border-[3px] border-white object-cover"
+                    className="h-6 w-6 rounded-full  border-white object-cover"
                   />
                 )
-              )} */}
+              )}
              
               </div>
               <div>
@@ -117,11 +118,11 @@ export default function HeroSection() {
 
             {/* Floating photo 1 */}
             <div className="absolute right-[1%] top-[7%] z-10 w-[45%] rotate-[-6deg] rounded-xl border-[5px] border-white bg-white p-1 shadow-xl transition duration-300 hover:rotate-0">
-              {/* <img
+             <img
                 src={campusFriends}
                 alt="University friends meeting on campus"
                 className="h-[130px] w-full rounded-md object-cover sm:h-[145px]"
-              /> */}
+              /> 
               <div className="px-2 py-2">
                 <p className="font-serif text-[15px] font-bold italic leading-tight">
                   Real People.
@@ -134,11 +135,11 @@ export default function HeroSection() {
 
             {/* Floating photo 2 */}
             <div className="absolute bottom-[9%] right-[5%] z-10 w-[46%] rotate-[5deg] rounded-xl border-[5px] border-white bg-white p-1 shadow-xl transition duration-300 hover:rotate-0">
-              {/* <img
+               <img
                 src={campusCommunity}
                 alt="Students socializing together"
                 className="h-[130px] w-full rounded-md object-cover sm:h-[145px]"
-              /> */}
+              /> 
             </div>
 
             {/* Phone frame */}
@@ -156,8 +157,11 @@ export default function HeroSection() {
 
                 {/* App branding */}
                 <div className="flex items-center gap-1 px-3 py-2">
-                  <Users size={19} className="text-[#FF650F]" strokeWidth={3} />
-                  <span className="text-[14px] font-extrabold">myinder</span>
+                 <img
+            src={logo}
+            alt="Myinder"
+            className="h-12 w-auto max-w-[270px] object-contain"
+          />
                 </div>
 
                 {/* Search */}
@@ -194,46 +198,97 @@ export default function HeroSection() {
                 </div>
 
                 {/* Featured section */}
-                <div className="mt-4 flex items-center justify-between px-3">
-                  <h3 className="text-[11px] font-extrabold">
-                    Featured {activeCategory}
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => setActiveCategory("Friends")}
-                    className="text-[9px] font-bold text-[#FF650F]"
-                  >
-                    See all
-                  </button>
-                </div>
+                <motion.div
+  className="mt-4 flex items-center justify-between px-3"
+  initial={{ opacity: 0, y: 12 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.45 }}
+>
+  <h3 className="text-[11px] font-extrabold">
+    Featured {activeCategory}
+  </h3>
 
-                {/* Editable feature card */}
-                <div className="mx-3 mt-2 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm">
-                {/* <img
-                    src={campusFriends}
-                    alt="Students looking to connect"
-                    className="h-[112px] w-full object-cover"
-                  /> */}
-                  
-                 
-                  <div className="p-2">
-                    <p className="text-[10px] font-bold">
-                      Looking for a roommate?
-                    </p>
-                    <p className="mt-1 text-[8px] text-slate-500">
-                      3 Bed · Shared Apartment · Nairobi
-                    </p>
-                    <div className="mt-2 flex items-center gap-1 text-[8px] text-[#FF650F]">
-                      <Home size={10} /> Roommate
-                    </div>
-                  </div>
-                </div>
+  <motion.button
+    type="button"
+    onClick={() => setActiveCategory("Friends")}
+    className="text-[9px] font-bold text-[#FF650F]"
+    whileHover={{ scale: 1.08 }}
+    whileTap={{ scale: 0.92 }}
+  >
+    See all
+  </motion.button>
+</motion.div>
 
-                <div className="mx-3 mt-2 rounded-lg bg-[#FFF4EC] px-2 py-2">
-                  <p className="text-[9px] font-bold text-[#45372F]">
-                    Find your people, wherever campus takes you.
-                  </p>
-                </div>
+{/* Animated feature card */}
+<motion.div
+  key={activeCategory}
+  className="mx-3 mt-2 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm"
+  initial={{ opacity: 0, y: 20, scale: 0.97 }}
+  animate={{ opacity: 1, y: 0, scale: 1 }}
+  transition={{
+    duration: 0.5,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+  whileHover={{
+    y: -4,
+    boxShadow: "0px 10px 25px rgba(255, 101, 15, 0.12)",
+  }}
+>
+  {/* Image zoom animation */}
+  <div className="h-[112px] overflow-hidden">
+    <motion.img
+      src={campusFriends}
+      alt="Students looking to connect"
+      className="h-full w-full object-cover"
+      initial={{ scale: 1.08 }}
+      animate={{ scale: 1 }}
+      whileHover={{ scale: 1.06 }}
+      transition={{ duration: 0.7, ease: "easeOut" }}
+    />
+  </div>
+
+  <div className="p-2">
+    <p className="text-[10px] font-bold">
+      Looking for a roommate?
+    </p>
+
+    <p className="mt-1 text-[8px] text-slate-500">
+      3 Bed · Shared Apartment · Texas
+    </p>
+
+    <motion.div
+      className="mt-2 flex items-center gap-1 text-[8px] text-[#FF650F]"
+      initial={{ opacity: 0, x: -8 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.25, duration: 0.35 }}
+    >
+      <Home size={10} />
+      Roommate
+    </motion.div>
+  </div>
+</motion.div>
+
+{/* Animated promotional message */}
+<motion.div
+  className="mx-3 mt-2 rounded-lg bg-[#FFF4EC] px-2 py-2"
+  initial={{ opacity: 0, y: 10 }}
+  animate={{
+    opacity: 1,
+    y: [0, -2, 0],
+  }}
+  transition={{
+    opacity: { duration: 0.4, delay: 0.3 },
+    y: {
+      duration: 2.5,
+      repeat: Infinity,
+      ease: "easeInOut",
+    },
+  }}
+>
+  <p className="text-[9px] font-bold text-[#45372F]">
+    Find your people, wherever campus takes you.
+  </p>
+</motion.div>
 
                 {/* Phone bottom navigation */}
                 <div className="absolute inset-x-0 bottom-0 border-t border-slate-100 bg-white px-2 pb-2 pt-2">
@@ -285,21 +340,7 @@ export default function HeroSection() {
         </div>
       </section>
 
-      {/* Next section preview */}
-      <section
-        id="explore"
-        className="border-t border-[#F7F2EE] bg-[#FFFCF9] px-6 py-8 lg:px-12"
-      >
-        <div className="mx-auto max-w-[1100px]">
-          <h2 className="text-2xl font-extrabold tracking-tight">
-            Explore by Category
-          </h2>
-          <p className="mt-2 text-sm text-[#718096]">
-            Find exactly what you need, whether it’s a friend, a roommate, or
-            your next event.
-          </p>
-        </div>
-      </section>
+     
     </main>
   );
 }
