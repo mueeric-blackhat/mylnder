@@ -1,6 +1,9 @@
 import { ArrowRight, Users } from "lucide-react";
 import Header from "../components/layout/Header";
 import HeroSection from "../components/HeroSection";
+import HowItWorks from "../components/HowItWorks";
+import FAQ from "../components/FAQs";
+import Footer from "../components/layout/Footer";
 
 export default function Home() {
   return (
@@ -9,11 +12,11 @@ export default function Home() {
       <Header />
       {/* Hero */}
      <HeroSection />
+     <HowItWorks />
+     <FAQ />
 
       {/* Footer */}
-      <footer className="border-t border-slate-100 px-6 py-6 text-center text-sm text-slate-400">
-        © {new Date().getFullYear()} Myinder. Built for campus life.
-      </footer>
+      <Footer />
     </main>
   );
 }
