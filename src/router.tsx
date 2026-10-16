@@ -2,7 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import MyinderFormPage from "./pages/FormPage";
 import HowItWorks from "./components/HowItWorks";
-import FAQs from "./components/FAQs";
+import FAQs from "./components/FAQs"; 
 
 
 
@@ -20,15 +20,15 @@ const router = createBrowserRouter([
     path: "/create",
     element: <MyinderFormPage />,
   },
-    path: "/HowItWorks",
+  { 
+    path: "/how-it-works",
     element: <HowItWorks />,
   },
   {
-    path: "/FAQs",
+    path: "/faqs",
     element: <FAQs />
   }
 
-  
 ]);
 
 export default router;
