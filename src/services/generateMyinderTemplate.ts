@@ -1,5 +1,6 @@
 
 import type { MyinderSubmission, School } from "../types/myinder";
+import { removeBackground } from "@imgly/background-removal";
 
 const WIDTH = 1092;
 const HEIGHT = 1440;
@@ -35,7 +36,10 @@ function fitText(
   maxWidth: number,
 ): string {
   const value = text.trim();
-  if (ctx.measureText(value).width <= maxWidth) return value;
+
+  if (ctx.measureText(value).width <= maxWidth) {
+    return value;
+  }
 
   let result = value;
 
@@ -57,8 +61,11 @@ function canvasToBlob(
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
-        if (blob) resolve(blob);
-        else reject(new Error("Failed to export the image."));
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("Failed to export the image."));
+        }
       },
       type,
       quality,
@@ -85,6 +92,10 @@ function drawRoundedRect(
   ctx.fill();
 }
 
+/**
+ * Draws an image using a cover crop.
+ * The image fills the destination without stretching.
+ */
 function drawCoverImage(
   ctx: CanvasRenderingContext2D,
   image: HTMLImageElement,
@@ -116,43 +127,46 @@ function drawCoverImage(
   );
 }
 
-function drawBottomOrangeGlow(
+/**
+ * Draws the original photo as a blurred, enlarged background.
+ * The enlarged edges prevent transparent gaps around the canvas.
+ */
+function drawBlurredPhotoBackground(
   ctx: CanvasRenderingContext2D,
-  color = ORANGE,
+  image: HTMLImageElement,
 ): void {
-  // Orange fade across the entire bottom edge.
-  const gradient = ctx.createLinearGradient(0, 930, 0, HEIGHT);
+  ctx.save();
 
-  gradient.addColorStop(0, `${color}00`);
-  gradient.addColorStop(0.25, `${color}12`);
-  gradient.addColorStop(0.55, `${color}55`);
-  gradient.addColorStop(0.8, `${color}B8`);
-  gradient.addColorStop(1, `${color}E8`);
+  ctx.filter = "blur(24px)";
+  ctx.globalAlpha = 1;
 
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 930, WIDTH, HEIGHT - 930);
-
-  const bottomGlow = ctx.createRadialGradient(
-    WIDTH / 2,
-    HEIGHT + 30,
-    5,
-    WIDTH / 2,
-    HEIGHT + 30,
-    WIDTH * 0.75,
+  drawCoverImage(
+    ctx,
+    image,
+    -32,
+    -32,
+    WIDTH + 64,
+    HEIGHT + 64,
   );
 
-  bottomGlow.addColorStop(0, `${color}66`);
-  bottomGlow.addColorStop(0.65, `${color}30`);
-  bottomGlow.addColorStop(1, `${color}00`);
+  ctx.restore();
 
-  ctx.fillStyle = bottomGlow;
-  ctx.fillRect(0, 1050, WIDTH, HEIGHT - 1050);
+  ctx.filter = "none";
+  ctx.globalAlpha = 1;
 }
 
+/**
+ * Adds a subtle dark overlay to improve text readability.
+ */
 function drawPhotoOverlays(
   ctx: CanvasRenderingContext2D,
 ): void {
-  const overall = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+  const overall = ctx.createLinearGradient(
+    0,
+    0,
+    0,
+    HEIGHT,
+  );
 
   overall.addColorStop(0, "rgba(0, 0, 0, 0.16)");
   overall.addColorStop(0.58, "rgba(0, 0, 0, 0.04)");
@@ -169,13 +183,24 @@ function drawPhotoOverlays(
   );
 
   bottomShade.addColorStop(0, "rgba(0, 0, 0, 0)");
-  bottomShade.addColorStop(0.35, "rgba(0, 0, 0, 0.42)");
-  bottomShade.addColorStop(1, "rgba(0, 0, 0, 0.76)");
+  bottomShade.addColorStop(
+    0.35,
+    "rgba(0, 0, 0, 0.42)",
+  );
+  bottomShade.addColorStop(
+    1,
+    "rgba(0, 0, 0, 0.76)",
+  );
 
   ctx.fillStyle = bottomShade;
   ctx.fillRect(0, 760, WIDTH, HEIGHT - 760);
 
-  const sideShade = ctx.createLinearGradient(0, 0, WIDTH, 0);
+  const sideShade = ctx.createLinearGradient(
+    0,
+    0,
+    WIDTH,
+    0,
+  );
 
   sideShade.addColorStop(0, "rgba(0, 0, 0, 0.25)");
   sideShade.addColorStop(0.2, "rgba(0, 0, 0, 0)");
@@ -186,6 +211,61 @@ function drawPhotoOverlays(
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 }
 
+/**
+ * Adds an orange gradient across the entire bottom edge.
+ */
+function drawBottomOrangeGlow(
+  ctx: CanvasRenderingContext2D,
+  color = ORANGE,
+): void {
+  const safeColor = getSafeColor(color);
+
+  const gradient = ctx.createLinearGradient(
+    0,
+    930,
+    0,
+    HEIGHT,
+  );
+
+  gradient.addColorStop(0, `${safeColor}00`);
+  gradient.addColorStop(0.25, `${safeColor}12`);
+  gradient.addColorStop(0.55, `${safeColor}55`);
+  gradient.addColorStop(0.8, `${safeColor}B8`);
+  gradient.addColorStop(1, `${safeColor}E8`);
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(
+    0,
+    930,
+    WIDTH,
+    HEIGHT - 930,
+  );
+
+  const bottomGlow = ctx.createRadialGradient(
+    WIDTH / 2,
+    HEIGHT + 30,
+    5,
+    WIDTH / 2,
+    HEIGHT + 30,
+    WIDTH * 0.75,
+  );
+
+  bottomGlow.addColorStop(0, `${safeColor}66`);
+  bottomGlow.addColorStop(0.65, `${safeColor}30`);
+  bottomGlow.addColorStop(1, `${safeColor}00`);
+
+  ctx.fillStyle = bottomGlow;
+  ctx.fillRect(
+    0,
+    1050,
+    WIDTH,
+    HEIGHT - 1050,
+  );
+}
+
+/**
+ * Adds a soft orange glow in the top-right corner.
+ */
 function drawTopRightGlow(
   ctx: CanvasRenderingContext2D,
 ): void {
@@ -206,6 +286,10 @@ function drawTopRightGlow(
   ctx.fillRect(0, 0, WIDTH, 620);
 }
 
+/**
+ * Draws the orange neon frame, with a gap at the top
+ * so the person's hair can overlap the frame.
+ */
 function drawNeonFrame(
   ctx: CanvasRenderingContext2D,
 ): void {
@@ -216,16 +300,22 @@ function drawNeonFrame(
   const radius = 42;
 
   ctx.save();
+
   ctx.beginPath();
 
-  // Gap at the top allows the person's hair to overlap the frame.
   ctx.moveTo(left + radius, top);
   ctx.lineTo(330, top);
 
   ctx.moveTo(750, top);
   ctx.lineTo(right - radius, top);
 
-  ctx.quadraticCurveTo(right, top, right, top + radius);
+  ctx.quadraticCurveTo(
+    right,
+    top,
+    right,
+    top + radius,
+  );
+
   ctx.lineTo(right, bottom - radius);
 
   ctx.quadraticCurveTo(
@@ -245,7 +335,13 @@ function drawNeonFrame(
   );
 
   ctx.lineTo(left, top + radius);
-  ctx.quadraticCurveTo(left, top, left + radius, top);
+
+  ctx.quadraticCurveTo(
+    left,
+    top,
+    left + radius,
+    top,
+  );
 
   ctx.strokeStyle = ORANGE;
   ctx.lineWidth = 2.2;
@@ -262,6 +358,9 @@ function drawNeonFrame(
   ctx.restore();
 }
 
+/**
+ * Draws the mylnder branding badge.
+ */
 function drawBrandBadge(
   ctx: CanvasRenderingContext2D,
 ): void {
@@ -273,7 +372,15 @@ function drawBrandBadge(
   ctx.save();
 
   ctx.fillStyle = ORANGE;
-  drawRoundedRect(ctx, x, y, width, height, 26);
+
+  drawRoundedRect(
+    ctx,
+    x,
+    y,
+    width,
+    height,
+    26,
+  );
 
   ctx.fillStyle = WHITE;
   ctx.font = `700 39px ${BODY_FONT}`;
@@ -289,6 +396,9 @@ function drawBrandBadge(
   ctx.restore();
 }
 
+/**
+ * Draws the Instagram outline icon.
+ */
 function drawInstagramIcon(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -303,10 +413,17 @@ function drawInstagramIcon(
   ctx.lineCap = "round";
 
   ctx.beginPath();
-  ctx.roundRect(x, y, size, size, size * 0.23);
+  ctx.roundRect(
+    x,
+    y,
+    size,
+    size,
+    size * 0.23,
+  );
   ctx.stroke();
 
   ctx.beginPath();
+
   ctx.arc(
     x + size / 2,
     y + size / 2,
@@ -314,9 +431,11 @@ function drawInstagramIcon(
     0,
     Math.PI * 2,
   );
+
   ctx.stroke();
 
   ctx.beginPath();
+
   ctx.arc(
     x + size * 0.72,
     y + size * 0.28,
@@ -331,6 +450,9 @@ function drawInstagramIcon(
   ctx.restore();
 }
 
+/**
+ * Draws the graduation cap icon.
+ */
 function drawGraduationIcon(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -346,21 +468,25 @@ function drawGraduationIcon(
 
   // Top of the graduation cap.
   ctx.beginPath();
+
   ctx.moveTo(x, y + size * 0.28);
   ctx.lineTo(x + size * 0.48, y);
   ctx.lineTo(x + size, y + size * 0.28);
   ctx.lineTo(x + size * 0.48, y + size * 0.48);
+
   ctx.closePath();
   ctx.fill();
 
   // Base of the cap.
   ctx.beginPath();
+
   ctx.moveTo(x + size * 0.19, y + size * 0.39);
   ctx.lineTo(x + size * 0.19, y + size * 0.68);
   ctx.lineTo(x + size * 0.48, y + size * 0.86);
   ctx.lineTo(x + size * 0.77, y + size * 0.68);
   ctx.lineTo(x + size * 0.77, y + size * 0.39);
   ctx.lineTo(x + size * 0.48, y + size * 0.57);
+
   ctx.closePath();
   ctx.fill();
 
@@ -368,11 +494,21 @@ function drawGraduationIcon(
   ctx.lineWidth = 3;
 
   ctx.beginPath();
-  ctx.moveTo(x + size * 0.91, y + size * 0.31);
-  ctx.lineTo(x + size * 0.91, y + size * 0.66);
+
+  ctx.moveTo(
+    x + size * 0.91,
+    y + size * 0.31,
+  );
+
+  ctx.lineTo(
+    x + size * 0.91,
+    y + size * 0.66,
+  );
+
   ctx.stroke();
 
   ctx.beginPath();
+
   ctx.arc(
     x + size * 0.91,
     y + size * 0.71,
@@ -380,11 +516,15 @@ function drawGraduationIcon(
     0,
     Math.PI * 2,
   );
+
   ctx.fill();
 
   ctx.restore();
 }
 
+/**
+ * Draws the original photo in a glowing circular badge.
+ */
 function drawCircularPhotoBadge(
   ctx: CanvasRenderingContext2D,
   image: HTMLImageElement,
@@ -396,11 +536,19 @@ function drawCircularPhotoBadge(
   const innerRadius = radius - borderWidth;
   const diameter = innerRadius * 2;
 
-  // Orange border and glow.
+  // Orange outer circle and glow.
   ctx.save();
 
   ctx.beginPath();
-  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+
+  ctx.arc(
+    centerX,
+    centerY,
+    radius,
+    0,
+    Math.PI * 2,
+  );
+
   ctx.fillStyle = ORANGE;
   ctx.shadowColor = ORANGE;
   ctx.shadowBlur = 14;
@@ -408,11 +556,19 @@ function drawCircularPhotoBadge(
 
   ctx.restore();
 
-  // Clip the uploaded photo to a circle.
+  // Clip the original photo into a circle.
   ctx.save();
 
   ctx.beginPath();
-  ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
+
+  ctx.arc(
+    centerX,
+    centerY,
+    innerRadius,
+    0,
+    Math.PI * 2,
+  );
+
   ctx.clip();
 
   const scale = Math.max(
@@ -439,11 +595,19 @@ function drawCircularPhotoBadge(
 
   ctx.restore();
 
-  // Bright outline around the circular photo.
+  // Fine highlight around the circular photo.
   ctx.save();
 
   ctx.beginPath();
-  ctx.arc(centerX, centerY, radius - 1, 0, Math.PI * 2);
+
+  ctx.arc(
+    centerX,
+    centerY,
+    radius - 1,
+    0,
+    Math.PI * 2,
+  );
+
   ctx.strokeStyle = "rgba(255, 195, 145, 0.95)";
   ctx.lineWidth = 1.3;
   ctx.stroke();
@@ -453,7 +617,17 @@ function drawCircularPhotoBadge(
 
 /**
  * Generates the current Myinder profile template.
- * Keep this three-argument signature compatible with FormPage.tsx.
+ *
+ * Design features:
+ * - Blurred original photo as the background.
+ * - Background-removed person overlaid sharply.
+ * - Orange bottom fade across the full width.
+ * - Top-right orange glow.
+ * - Orange neon frame and mylnder branding.
+ * - Profile name, Instagram username, and major.
+ * - Circular photo badge in the bottom-right corner.
+ *
+ * The three-argument signature is retained for FormPage.tsx.
  */
 export async function generateMyinderTemplate(
   photo: File,
@@ -472,7 +646,30 @@ export async function generateMyinderTemplate(
     throw new Error("Please upload a valid image file.");
   }
 
+  // Load the original photo for the background and thumbnail.
   const image = await loadImage(photo);
+
+  // Separate the person from the background.
+  let foregroundBlob: Blob;
+
+  try {
+    foregroundBlob = await removeBackground(photo);
+  } catch (error) {
+    console.error("Background removal failed:", error);
+
+    throw new Error(
+      "Could not separate the person from the photo background. Please try another photo or check your internet connection.",
+    );
+  }
+
+  const foregroundFile = new File(
+    [foregroundBlob],
+    "myinder-person.png",
+    { type: "image/png" },
+  );
+
+  const personImage = await loadImage(foregroundFile);
+
   const canvas = document.createElement("canvas");
 
   canvas.width = WIDTH;
@@ -484,23 +681,39 @@ export async function generateMyinderTemplate(
     throw new Error("Could not create the Myinder template.");
   }
 
-  // Fill the canvas and place the uploaded photo edge to edge.
+  // 1. Base canvas.
   ctx.fillStyle = NAVY;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-  drawCoverImage(ctx, image, 0, 0, WIDTH, HEIGHT);
+  // 2. Blurred original photo as the background.
+  drawBlurredPhotoBackground(ctx, image);
 
-  // Photo shading and orange background effects.
+  // 3. Draw the sharp, background-removed person.
+  // Draw the full transparent image so the person remains aligned
+  // with the original photo's framing.
+  ctx.drawImage(
+    personImage,
+    0,
+    0,
+    WIDTH,
+    HEIGHT,
+  );
+
+  // 4. Dark overlays for contrast.
   drawPhotoOverlays(ctx);
-  drawTopRightGlow(ctx);
-  drawBottomOrangeGlow(ctx);
 
-  // Orange neon border and branding.
+  // 5. Soft orange glow at the top-right.
+  drawTopRightGlow(ctx);
+
+  // 6. Orange fade across the entire bottom edge.
+  drawBottomOrangeGlow(ctx, ORANGE);
+
+  // 7. Neon frame and brand badge.
   drawNeonFrame(ctx);
   drawBrandBadge(ctx);
 
-  // Keep school available for existing callers, but don't display it.
-  // The reference design has no university label or bio.
+  // Retain compatibility with callers that provide a school.
+  // The current reference design does not display the school name.
   void school;
 
   const left = 130;
@@ -515,10 +728,12 @@ export async function generateMyinderTemplate(
   ctx.shadowBlur = 5;
   ctx.shadowOffsetY = 2;
 
-  // Large profile name.
-  const name = submission.name?.trim() || "Myinder Member";
+  // Profile name.
+  const name =
+    submission.name?.trim() || "Myinder Member";
 
   ctx.font = `700 72px ${BODY_FONT}`;
+
   ctx.fillText(
     fitText(ctx, name, maxTextWidth),
     left,
@@ -526,7 +741,12 @@ export async function generateMyinderTemplate(
   );
 
   // Instagram icon and username.
-  drawInstagramIcon(ctx, 137, 1067, 56);
+  drawInstagramIcon(
+    ctx,
+    137,
+    1067,
+    56,
+  );
 
   const username = submission.ig_username
     ?.trim()
@@ -543,7 +763,7 @@ export async function generateMyinderTemplate(
     1107,
   );
 
-  // Short orange divider beneath the Instagram row.
+  // Orange divider beneath the Instagram row.
   const divider = ctx.createLinearGradient(
     137,
     1155,
@@ -568,10 +788,16 @@ export async function generateMyinderTemplate(
 
   ctx.restore();
 
-  // Graduation cap and major.
-  drawGraduationIcon(ctx, 137, 1188, 62);
+  // Graduation icon and major.
+  drawGraduationIcon(
+    ctx,
+    137,
+    1188,
+    62,
+  );
 
-  const major = submission.major?.trim() || "Major not provided";
+  const major =
+    submission.major?.trim() || "Major not provided";
 
   ctx.font = `600 33px ${BODY_FONT}`;
 
@@ -583,8 +809,14 @@ export async function generateMyinderTemplate(
 
   ctx.restore();
 
-  // Circular thumbnail of the same photo, bottom-right.
-  drawCircularPhotoBadge(ctx, image, 907, 1210, 69);
+  // Circular thumbnail uses the original, sharp photo.
+  drawCircularPhotoBadge(
+    ctx,
+    image,
+    907,
+    1210,
+    69,
+  );
 
   return canvasToBlob(canvas, "image/png");
 }
@@ -614,10 +846,13 @@ export async function watermarkPhoto(
   }
 
   if (photo.size > MAX_FILE_SIZE) {
-    throw new Error(`${photo.name} is larger than 5 MB.`);
+    throw new Error(
+      `${photo.name} is larger than 5 MB.`,
+    );
   }
 
   const image = await loadImage(photo);
+
   const canvas = document.createElement("canvas");
 
   canvas.width = image.naturalWidth;
@@ -631,7 +866,13 @@ export async function watermarkPhoto(
     );
   }
 
-  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(
+    image,
+    0,
+    0,
+    canvas.width,
+    canvas.height,
+  );
 
   const safeColor = getSafeColor(themeColor);
 
@@ -685,10 +926,23 @@ export async function watermarkPhoto(
   const outputType = photo.type;
 
   if (outputType === "image/png") {
-    blob = await canvasToBlob(canvas, outputType);
+    blob = await canvasToBlob(
+      canvas,
+      outputType,
+    );
   } else {
-    for (const quality of [0.88, 0.78, 0.68, 0.58, 0.48]) {
-      blob = await canvasToBlob(canvas, outputType, quality);
+    for (const quality of [
+      0.88,
+      0.78,
+      0.68,
+      0.58,
+      0.48,
+    ]) {
+      blob = await canvasToBlob(
+        canvas,
+        outputType,
+        quality,
+      );
 
       if (blob.size <= MAX_FILE_SIZE) {
         break;
@@ -697,7 +951,9 @@ export async function watermarkPhoto(
   }
 
   if (!blob) {
-    throw new Error(`Could not watermark ${photo.name}.`);
+    throw new Error(
+      `Could not watermark ${photo.name}.`,
+    );
   }
 
   if (blob.size > MAX_FILE_SIZE) {
@@ -714,7 +970,8 @@ export async function watermarkPhoto(
         : ".png";
 
   const baseName =
-    photo.name.replace(/\.[^.]+$/, "") || "myinder-photo";
+    photo.name.replace(/\.[^.]+$/, "") ||
+    "myinder-photo";
 
   return new File(
     [blob],
@@ -734,10 +991,14 @@ export async function watermarkPhotos(
   themeColor: string = ORANGE,
 ): Promise<File[]> {
   if (photos.length < 1 || photos.length > 10) {
-    throw new Error("Please select between 1 and 10 photos.");
+    throw new Error(
+      "Please select between 1 and 10 photos.",
+    );
   }
 
   return Promise.all(
-    photos.map((photo) => watermarkPhoto(photo, themeColor)),
+    photos.map((photo) =>
+      watermarkPhoto(photo, themeColor),
+    ),
   );
 }
