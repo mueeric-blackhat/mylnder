@@ -1,29 +1,17 @@
-
-export interface University {
-  id: number;
+export interface School {
+  id: string;
   name: string;
-  profile_name: string | null;
-  custom_color: string | null;
-  template: string | null;
+  profile_name: string;
+  custom_color: string;
+  template: "basic" | "standard";
 }
 
-export interface MyinderProfile {
-  school: string;
+export interface MyinderSubmission {
   name: string;
-  username: string;
+  ig_username: string;
   major: string;
   bio: string;
+  school_id: string;
   song: string;
+  photos: string[];
 }
-
-export const MAX_PHOTOS = 10;
-export const MAX_PHOTO_SIZE_MB = 15;
-
-export const INITIAL_PROFILE: MyinderProfile = {
-  school: "",
-  name: "",
-  username: "",
-  major: "",
-  bio: "",
-  song: "",
-};

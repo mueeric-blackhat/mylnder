@@ -1,14 +1,13 @@
+
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import MyinderFormPage from "./pages/FormPage";
 import HowItWorks from "./components/HowItWorks";
-import FAQs from "./components/FAQs"; 
-
-
-
+import FAQs from "./components/FAQs";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 
 const router = createBrowserRouter([
-    {
+  {
     path: "/",
     element: <Navigate to="/home" replace />,
   },
@@ -20,15 +19,18 @@ const router = createBrowserRouter([
     path: "/create",
     element: <MyinderFormPage />,
   },
-  { 
+  {
     path: "/how-it-works",
     element: <HowItWorks />,
   },
   {
     path: "/faqs",
-    element: <FAQs />
-  }
-
+    element: <FAQs />,
+  },
+  {
+    path: "/payments/success",
+    element: <PaymentSuccessPage />,
+  },
 ]);
 
 export default router;

@@ -4,10 +4,16 @@ import { ImagePlus, UploadCloud, X } from "lucide-react";
 import { useMyinderFormStore } from "../../stores/formstore";
 
 const MAX_PHOTOS = 10;
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MiB
+const ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+];
 
 export default function PhotoUploadStep() {
   const { photos, setPhotos, removePhoto } = useMyinderFormStore();
+
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState("");
@@ -16,6 +22,7 @@ export default function PhotoUploadStep() {
     { file: File; url: string }[]
   >([]);
 
+  // Create temporary browser previews and release their URLs when replaced.
   useEffect(() => {
     const next = photos.map((file) => ({
       file,
@@ -44,27 +51,27 @@ export default function PhotoUploadStep() {
     const problems: string[] = [];
 
     for (const file of incoming) {
-      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
         problems.push(`${file.name}: use JPG, PNG, or WebP.`);
         continue;
       }
 
       if (file.size > MAX_FILE_SIZE) {
-        problems.push(`${file.name}: maximum size is 10MB.`);
+        problems.push(`${file.name}: maximum size is 5 MiB.`);
         continue;
       }
 
       if (accepted.length < remaining) {
         accepted.push(file);
+      } else {
+        problems.push(
+          `${file.name}: the maximum of ${MAX_PHOTOS} photos would be exceeded.`,
+        );
       }
     }
 
-    if (incoming.length > remaining) {
-      problems.push(`Only ${remaining} more photo(s) can be added.`);
-    }
-
     if (accepted.length > 0) {
-      setPhotos([...photos, ...accepted].slice(0, MAX_PHOTOS));
+      setPhotos([...photos, ...accepted]);
     }
 
     if (problems.length > 0) {
@@ -72,11 +79,17 @@ export default function PhotoUploadStep() {
     }
   }
 
+  function handleRemovePhoto(index: number) {
+    setError("");
+    removePhoto(index);
+  }
+
   return (
     <div className="space-y-4">
       <div>
         <div className="mb-2 flex items-center gap-2">
           <ImagePlus className="h-6 w-6 text-orange-600" />
+
           <h2 className="text-xl font-bold text-slate-900">
             Upload your photos
           </h2>
@@ -95,7 +108,11 @@ export default function PhotoUploadStep() {
         multiple
         className="hidden"
         onChange={(event) => {
-          if (event.target.files) addPhotos(event.target.files);
+          if (event.target.files) {
+            addPhotos(event.target.files);
+          }
+
+          // Allow selecting the same file again after removing it.
           event.target.value = "";
         }}
       />
@@ -108,7 +125,10 @@ export default function PhotoUploadStep() {
             event.preventDefault();
             setDragging(true);
           }}
-          onDragLeave={() => setDragging(false)}
+          onDragLeave={(event) => {
+            event.preventDefault();
+            setDragging(false);
+          }}
           onDrop={(event) => {
             event.preventDefault();
             setDragging(false);
@@ -127,7 +147,7 @@ export default function PhotoUploadStep() {
           </span>
 
           <span className="mt-2 text-sm text-slate-500">
-            JPG, PNG or WebP · Up to 10MB per photo
+            JPG, PNG or WebP · Up to 5 MiB per photo
           </span>
 
           <span className="mt-1 text-xs text-slate-400">
@@ -137,7 +157,7 @@ export default function PhotoUploadStep() {
       )}
 
       {error && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm leading-5 text-red-600">
           {error}
         </p>
       )}
@@ -146,14 +166,15 @@ export default function PhotoUploadStep() {
         <div>
           <div className="mb-3 flex items-center justify-between">
             <h3 className="font-semibold text-slate-800">
-              Your uploaded photos
+              Your selected photos
             </h3>
+
             <span className="text-sm text-slate-500">
-              {photos.length}/10
+              {photos.length}/{MAX_PHOTOS}
             </span>
           </div>
 
-          <div className="grid grid-cols-5 gap-2 sm:gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-3">
             {previews.map((preview, index) => (
               <div
                 key={`${preview.file.name}-${index}`}
@@ -161,7 +182,7 @@ export default function PhotoUploadStep() {
               >
                 <img
                   src={preview.url}
-                  alt={`Uploaded photo ${index + 1}`}
+                  alt={`Selected photo ${index + 1}`}
                   className={`aspect-square w-full rounded-lg border object-cover ${
                     index === 0
                       ? "border-2 border-orange-500"
@@ -177,9 +198,9 @@ export default function PhotoUploadStep() {
 
                 <button
                   type="button"
-                  onClick={() => removePhoto(index)}
+                  onClick={() => handleRemovePhoto(index)}
                   aria-label={`Remove photo ${index + 1}`}
-                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-slate-900/75 text-white hover:bg-red-600"
+                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-slate-900/75 text-white transition hover:bg-red-600"
                 >
                   <X size={14} />
                 </button>
@@ -190,8 +211,7 @@ export default function PhotoUploadStep() {
       )}
 
       <p className="text-xs leading-5 text-slate-500">
-        Your first photo becomes your featured post. You can remove
-        photos and add replacements before continuing.
+        Your first selected photo becomes your featured photo.
       </p>
     </div>
   );

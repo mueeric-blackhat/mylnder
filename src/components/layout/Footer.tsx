@@ -14,14 +14,12 @@ const footerLinks = {
   Explore: [
     { label: "Home", href: "/" },
     { label: "How It Works", href: "#how-it-works" },
-    { label: "Features", href: "#features" },
-    { label: "Pricing", href: "#pricing" },
+   
   ],
   Support: [
     { label: "Contact Us", href: "mailto:hello@myinder.com" },
     { label: "Help Center", href: "#help" },
-    { label: "Privacy Policy", href: "#privacy" },
-    { label: "Terms of Service", href: "#terms" },
+    
   ],
 };
 
@@ -142,7 +140,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col gap-3 border-t border-slate-200/70 py-5 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} Myinder. All rights reserved.
+            © {new Date().getFullYear()} Mylnder. All rights reserved.
           </p>
 
           <p className="flex items-center gap-1">

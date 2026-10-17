@@ -1,23 +1,24 @@
 
 import { create } from "zustand";
-import type { MyinderProfile } from "../types/myinder";
+import type { MyinderSubmission} from "../types/myinder";
 
 interface MyinderFormState {
-  profile: MyinderProfile;
+  profile: MyinderSubmission;
   photos: File[];
-  setProfileField: (field: keyof MyinderProfile, value: string) => void;
+  setProfileField: (field: keyof MyinderSubmission  , value: string) => void;
   setPhotos: (photos: File[]) => void;
   removePhoto: (index: number) => void;
   resetForm: () => void;
 }
 
-const initialProfile: MyinderProfile = {
-  school: "",
+const initialProfile: MyinderSubmission = {
+  school_id: "",
   name: "",
-  username: "",
+  ig_username: "",
   major: "",
   bio: "",
   song: "",
+    photos: [],
 };
 
 export const useMyinderFormStore = create<MyinderFormState>((set) => ({

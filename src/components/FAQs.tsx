@@ -3,9 +3,7 @@ import { useState } from "react";
 import {
   ChevronDown,
   MessageCircleQuestion,
-  ShieldCheck,
   Users,
-  CreditCard,
   LifeBuoy,
   ArrowUpRight,
 } from "lucide-react";
@@ -16,19 +14,19 @@ const faqs = [
     icon: Users,
     questions: [
       {
-        question: "What is Myinder?",
+        question: "What is Mylnder?",
         answer:
-          "Myinder is a campus connection platform that helps students discover classmates, find roommates, join groups, and connect with their campus community in one place.",
+          "Mylnder is a campus connection platform that helps students discover classmates, find roommates, join groups, and connect with their campus community in one place.",
       },
       {
-        question: "How do I create a Myinder account?",
+        question: "How do I create a Mylnder account?",
         answer:
-          "Getting started is simple. Sign up using your details, complete your profile, upload a clear photo, and follow the instructions to finish setting up your account.",
+          "Sign up using your details, complete your profile, upload a clear photo, and follow the instructions to finish setting up your account.",
       },
       {
-        question: "Who can join Myinder?",
+        question: "Who can join Mylnder?",
         answer:
-          "Myinder is designed for students who want to build meaningful connections around campus. Follow the registration requirements shown when creating your account.",
+          "Mylnder is designed for students who want to build meaningful connections around campus.",
       },
     ],
   },
@@ -39,53 +37,21 @@ const faqs = [
       {
         question: "How can I find classmates?",
         answer:
-          "Explore profiles and discover people in your campus community. Use available search and discovery features to find students with similar interests.",
+          "Explore profiles and discover students in your campus community who share your interests.",
       },
       {
-        question: "Can I find a roommate on Myinder?",
+        question: "Can I find a roommate on Mylnder?",
         answer:
-          "Yes! You can explore roommate listings, review the information provided, and connect with students looking for compatible living arrangements.",
+          "Yes! Explore roommate listings and connect with students looking for compatible living arrangements.",
       },
       {
         question: "Can I create or join campus groups?",
         answer:
-          "Myinder helps students connect around shared interests and activities. Check the Groups and Events sections to discover available opportunities.",
+          "Explore the Groups and Events sections to discover campus activities and connect with students who share your interests.",
       },
     ],
   },
-  {
-    category: "Payments & Listings",
-    icon: CreditCard,
-    questions: [
-      {
-        question: "Do I need to make a payment?",
-        answer:
-          "Some features or listings may require payment. Any applicable fee and payment instructions should be displayed before you confirm a transaction.",
-      },
-      {
-        question: "What payment methods are supported?",
-        answer:
-          "We support Stripe payments.",
-      },
-    ],
-  },
-  {
-    category: "Privacy & Support",
-    icon: ShieldCheck,
-    questions: [
-      {
-        question: "Is my personal information safe?",
-        answer:
-          "Myinder should handle personal information according to its privacy policy. Review that policy to understand what information is collected, how it is used, and what controls are available to you.",
-      },
-     
-      {
-        question: "How can I contact the Myinder team?",
-        answer:
-          "You can reach the team by emailing hello@myinder.com for assistance with your account, listings, payments, or other questions.",
-      },
-    ],
-  },
+ 
 ];
 
 export default function FAQ() {
@@ -121,7 +87,7 @@ export default function FAQ() {
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
             Everything you need to know about finding your people,
             discovering your campus community, and getting started
-            with Myinder.
+            with Mylnder.
           </p>
         </div>
 
@@ -149,24 +115,6 @@ export default function FAQ() {
               Contact Support
               <ArrowUpRight size={17} />
             </a>
-
-            <div className="my-7 h-px bg-slate-100" />
-
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-[#FF650F]">
-                <ShieldCheck size={20} />
-              </div>
-
-              <div>
-                <h4 className="text-sm font-bold text-[#102746]">
-                  Your community matters
-                </h4>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  Explore connections responsibly and review our
-                  privacy guidelines.
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* Questions */}
@@ -274,7 +222,7 @@ export default function FAQ() {
             href="/"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#FF650F] px-6 py-3.5 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#E95708]"
           >
-            Explore Myinder
+            Explore Mylnder
             <ArrowUpRight size={17} />
           </a>
         </div>
