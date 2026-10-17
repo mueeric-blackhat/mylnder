@@ -103,7 +103,7 @@ export default function HeroSection() {
               </div>
               <div>
                 <p className="text-xs font-bold text-[#253247]">
-                  Join 100,000+ students
+                  Join 10,000+ students
                 </p>
                 <p className="mt-1 text-[11px] text-[#718096]">
                   making new connections on Myinder
