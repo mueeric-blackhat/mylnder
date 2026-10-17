@@ -270,7 +270,7 @@ export default function FormPage() {
           photos[0],
           profile as MyinderSubmission,
           selectedSchool,
-          themeColor
+        
         );
 
         const firstPhotoBaseName =

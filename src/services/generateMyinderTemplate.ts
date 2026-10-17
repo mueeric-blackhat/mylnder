@@ -10,6 +10,7 @@ const ORANGE = "#F97316";
 const NAVY = "#172033";
 const WHITE = "#FFFFFF";
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const PROFILE_FONT = '"Algerian", "Copperplate", Georgia, serif';
 
 function loadImage(file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -92,24 +93,67 @@ function drawRoundedRect(
   ctx.fill();
 }
 
+function drawCircularPhotoBadge(
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  centerX: number,
+  centerY: number,
+  radius: number
+): void {
+  const borderWidth = 7;
+  const innerRadius = radius - borderWidth;
+  const diameter = innerRadius * 2;
+
+  // Orange badge base and subtle shadow.
+  ctx.save();
+  ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+  ctx.shadowBlur = 12;
+  ctx.shadowOffsetY = 3;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+  ctx.fillStyle = ORANGE;
+  ctx.fill();
+  ctx.restore();
+
+  // Crop the same uploaded photo into a circle.
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
+  ctx.clip();
+
+  const scale = Math.max(
+    diameter / image.naturalWidth,
+    diameter / image.naturalHeight
+  );
+
+  const sourceWidth = diameter / scale;
+  const sourceHeight = diameter / scale;
+  const sourceX = (image.naturalWidth - sourceWidth) / 2;
+  const sourceY = (image.naturalHeight - sourceHeight) / 2;
+
+  ctx.drawImage(
+    image,
+    sourceX,
+    sourceY,
+    sourceWidth,
+    sourceHeight,
+    centerX - innerRadius,
+    centerY - innerRadius,
+    diameter,
+    diameter
+  );
+
+  ctx.restore();
+}
+
 /**
  * Generates the complete Myinder profile template.
- *
- * Includes:
- * - Full-size profile photo
- * - Myinder badge at the top
- * - School-color gradient fading into the bottom
- * - Name
- * - School profile name
- * - Instagram username
- * - Major/course
- * - Optional bio
  */
 export async function generateMyinderTemplate(
   photo: File,
   submission: MyinderSubmission,
   school: School,
-  themeColor: string = ORANGE
+  // themeColor: string = ORANGE
 ): Promise<Blob> {
   if (!photo) {
     throw new Error("Upload at least one photo.");
@@ -127,11 +171,11 @@ export async function generateMyinderTemplate(
     throw new Error("Could not create the Myinder template.");
   }
 
-  // Use a solid background in case the source image contains transparency.
+  // Base background.
   ctx.fillStyle = NAVY;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-  // Crop the photo to cover the complete 1080 x 1350 canvas.
+  // Crop the photo to cover the complete canvas.
   const scale = Math.max(
     WIDTH / image.naturalWidth,
     HEIGHT / image.naturalHeight
@@ -154,50 +198,70 @@ export async function generateMyinderTemplate(
     HEIGHT
   );
 
-  // Prefer the school's custom color; fall back to Myinder orange.
-  const safeColor = getSafeColor(
-    school.custom_color || themeColor
+
+
+  // Soft orange fade at the top-right.
+  const topRightGradient = ctx.createRadialGradient(
+    WIDTH,
+    0,
+    10,
+    WIDTH,
+    0,
+    560
   );
 
-  // Bottom gradient: transparent over the photo, stronger near the text.
-  const gradient = ctx.createLinearGradient(0, 480, 0, HEIGHT);
+  topRightGradient.addColorStop(0, `${ORANGE}45`);
+  topRightGradient.addColorStop(0.5, `${ORANGE}18`);
+  topRightGradient.addColorStop(1, `${ORANGE}00`);
 
-  gradient.addColorStop(0, "rgba(23, 32, 51, 0)");
-  gradient.addColorStop(0.22, `${safeColor}18`);
-  gradient.addColorStop(0.48, `${safeColor}66`);
-  gradient.addColorStop(0.72, `${safeColor}CC`);
-  gradient.addColorStop(1, `${safeColor}F5`);
+  ctx.fillStyle = topRightGradient;
+  ctx.fillRect(0, 0, WIDTH, 620);
 
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 480, WIDTH, HEIGHT - 480);
+  // Compact orange gradient across the ENTIRE bottom.
+  // It starts at y=930 instead of y=480, preserving more of the photo.
+  const bottomGradient = ctx.createLinearGradient(
+    0,
+    930,
+    0,
+    HEIGHT
+  );
 
-  // Add a subtle dark fade behind the top badge for readability.
+  bottomGradient.addColorStop(0, `${ORANGE}00`);
+  bottomGradient.addColorStop(0.25, `${ORANGE}12`);
+  bottomGradient.addColorStop(0.55, `${ORANGE}55`);
+  bottomGradient.addColorStop(0.8, `${ORANGE}B8`);
+  bottomGradient.addColorStop(1, `${ORANGE}E8`);
+
+  ctx.fillStyle = bottomGradient;
+  ctx.fillRect(0, 930, WIDTH, HEIGHT - 930);
+
+  // Subtle top fade behind the logo.
   const topGradient = ctx.createLinearGradient(0, 0, 0, 220);
 
-  topGradient.addColorStop(0, "rgba(0, 0, 0, 0.45)");
+  topGradient.addColorStop(0, "rgba(0, 0, 0, 0.3)");
   topGradient.addColorStop(1, "rgba(0, 0, 0, 0)");
 
   ctx.fillStyle = topGradient;
   ctx.fillRect(0, 0, WIDTH, 220);
 
-  // Draw the Myinder badge at the top-left.
+  // Myinder logo badge.
   const badgeX = 56;
   const badgeY = 56;
   const badgePaddingX = 24;
   const badgePaddingY = 15;
   const badgeFontSize = 38;
+  const badgeText = "mylnder";
 
   ctx.save();
   ctx.font = `bold ${badgeFontSize}px Arial`;
   ctx.textAlign = "left";
   ctx.textBaseline = "middle";
 
-  const badgeText = "myinder";
   const badgeWidth =
     ctx.measureText(badgeText).width + badgePaddingX * 2;
   const badgeHeight = badgeFontSize + badgePaddingY * 2;
 
-  ctx.fillStyle = safeColor;
+  ctx.fillStyle = ORANGE;
   drawRoundedRect(
     ctx,
     badgeX,
@@ -206,7 +270,6 @@ export async function generateMyinderTemplate(
     badgeHeight,
     16
   );
-
   ctx.fillStyle = WHITE;
   ctx.fillText(
     badgeText,
@@ -215,20 +278,21 @@ export async function generateMyinderTemplate(
   );
   ctx.restore();
 
-  // Draw profile details over the gradient.
+  // Profile text positioned lower-left.
+  // Reserve the bottom-right for the circular photo badge.
   ctx.save();
   ctx.fillStyle = WHITE;
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
-  ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
-  ctx.shadowBlur = 6;
+  ctx.shadowColor = "rgba(0, 0, 0, 0.35)";
+  ctx.shadowBlur = 5;
   ctx.shadowOffsetY = 2;
 
   const left = 64;
-  const maxTextWidth = WIDTH - left * 2;
+  const maxTextWidth = 700;
 
-  // Full name.
-  ctx.font = "bold 62px Arial";
+  // Name.
+  ctx.font = `bold 56px ${PROFILE_FONT}`;
   ctx.fillText(
     fitText(
       ctx,
@@ -236,8 +300,21 @@ export async function generateMyinderTemplate(
       maxTextWidth
     ),
     left,
-    1000
+    1135
   );
+
+  // School profile name.
+  const schoolProfileName =
+    school.profile_name?.trim() || school.name?.trim();
+
+  if (schoolProfileName) {
+    ctx.font = `28px ${PROFILE_FONT}`;
+    ctx.fillText(
+      fitText(ctx, schoolProfileName, maxTextWidth),
+      left,
+      1180
+    );
+  }
 
   // Instagram username.
   const username = submission.ig_username?.trim();
@@ -245,15 +322,15 @@ export async function generateMyinderTemplate(
     ? `@${username.replace(/^@/, "")}`
     : "Instagram username not provided";
 
-  ctx.font = "34px Arial";
+  ctx.font = `27px ${PROFILE_FONT}`;
   ctx.fillText(
     fitText(ctx, instagramLabel, maxTextWidth),
     left,
-    1115
+    1223
   );
 
-  // Major or course of study.
-  ctx.font = "bold 40px Arial";
+  // Major/course.
+  ctx.font = `bold 29px ${PROFILE_FONT}`;
   ctx.fillText(
     fitText(
       ctx,
@@ -261,18 +338,29 @@ export async function generateMyinderTemplate(
       maxTextWidth
     ),
     left,
-    1180
+    1267
   );
 
+  // Optional bio, kept within the canvas.
+  if (submission.bio?.trim()) {
+    ctx.font = `22px ${PROFILE_FONT}`;
+    ctx.fillText(
+      fitText(ctx, submission.bio, maxTextWidth),
+      left,
+      1310
+    );
+  }
 
   ctx.restore();
+
+  // Small circular preview of the same photo at bottom-right.
+  drawCircularPhotoBadge(ctx, image, 956, 1225, 62);
 
   return canvasToBlob(canvas, "image/png");
 }
 
 /**
  * Adds a small Myinder badge to one photo.
- * Use this for additional photos that do not need the full template.
  */
 export async function watermarkPhoto(
   photo: File,
@@ -318,7 +406,7 @@ export async function watermarkPhoto(
 
   const padding = Math.round(18 * scale);
   const fontSize = Math.round(36 * scale);
-  const label = "myinder";
+  const label = "mylnder";
 
   ctx.save();
   ctx.font = `bold ${fontSize}px Arial`;
@@ -397,7 +485,6 @@ export async function watermarkPhoto(
 
 /**
  * Adds the small Myinder badge to every selected photo.
- * This does not generate the complete profile template.
  */
 export async function watermarkPhotos(
   photos: File[],
