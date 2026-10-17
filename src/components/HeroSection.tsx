@@ -18,7 +18,7 @@ import { useState } from "react";
 import { motion} from "framer-motion";
 import campusFriends from "../assets/campusFriends.png";
 import campusCommunity from "../assets/campusCommunity.png";
-import logo from "../assets/logo.png";
+import logo from "../assets/Logo.png";
 
 
 export default function HeroSection() {
