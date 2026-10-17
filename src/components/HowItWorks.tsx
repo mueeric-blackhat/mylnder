@@ -8,7 +8,6 @@ import {
   Check,
   PartyPopper,
   ShieldCheck,
-  CalendarDays,
 } from "lucide-react";
 
 const steps = [

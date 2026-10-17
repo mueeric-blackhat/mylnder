@@ -2,9 +2,6 @@
 import {
   ArrowUpRight,
  
-  Link,
- 
-  Mail,
 } from "lucide-react";
 import logo from "../../assets/logo.png";
 

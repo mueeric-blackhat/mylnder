@@ -1,4 +1,4 @@
-import { ArrowRight, Users } from "lucide-react";
+// import { ArrowRight, Users } from "lucide-react";
 import Header from "../components/layout/Header";
 import HeroSection from "../components/HeroSection";
 import HowItWorks from "../components/HowItWorks";
