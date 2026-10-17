@@ -5,5 +5,7 @@ dist/
 !.env.example
 
 
-#environment variables  
+# Environment variables and secrets
 .env
+.env.*
+!.env.example
