@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mylnder.netlify.app/sitemap.xml
