@@ -1,3 +1,4 @@
+
 import type { MyinderSubmission, School } from "../types/myinder";
 
 const WIDTH = 1092;
@@ -37,6 +38,7 @@ function fitText(
   if (ctx.measureText(value).width <= maxWidth) return value;
 
   let result = value;
+
   while (
     result.length > 0 &&
     ctx.measureText(`${result}...`).width > maxWidth
@@ -65,7 +67,9 @@ function canvasToBlob(
 }
 
 function getSafeColor(color?: string): string {
-  return color && /^#[0-9a-fA-F]{6}$/.test(color) ? color : ORANGE;
+  return color && /^#[0-9a-fA-F]{6}$/.test(color)
+    ? color
+    : ORANGE;
 }
 
 function drawRoundedRect(
@@ -116,7 +120,9 @@ function drawBottomOrangeGlow(
   ctx: CanvasRenderingContext2D,
   color = ORANGE,
 ): void {
+  // Orange fade across the entire bottom edge.
   const gradient = ctx.createLinearGradient(0, 930, 0, HEIGHT);
+
   gradient.addColorStop(0, `${color}00`);
   gradient.addColorStop(0.25, `${color}12`);
   gradient.addColorStop(0.55, `${color}55`);
@@ -143,8 +149,11 @@ function drawBottomOrangeGlow(
   ctx.fillRect(0, 1050, WIDTH, HEIGHT - 1050);
 }
 
-function drawPhotoOverlays(ctx: CanvasRenderingContext2D): void {
+function drawPhotoOverlays(
+  ctx: CanvasRenderingContext2D,
+): void {
   const overall = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+
   overall.addColorStop(0, "rgba(0, 0, 0, 0.16)");
   overall.addColorStop(0.58, "rgba(0, 0, 0, 0.04)");
   overall.addColorStop(1, "rgba(0, 0, 0, 0.32)");
@@ -152,7 +161,13 @@ function drawPhotoOverlays(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = overall;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-  const bottomShade = ctx.createLinearGradient(0, 760, 0, HEIGHT);
+  const bottomShade = ctx.createLinearGradient(
+    0,
+    760,
+    0,
+    HEIGHT,
+  );
+
   bottomShade.addColorStop(0, "rgba(0, 0, 0, 0)");
   bottomShade.addColorStop(0.35, "rgba(0, 0, 0, 0.42)");
   bottomShade.addColorStop(1, "rgba(0, 0, 0, 0.76)");
@@ -161,6 +176,7 @@ function drawPhotoOverlays(ctx: CanvasRenderingContext2D): void {
   ctx.fillRect(0, 760, WIDTH, HEIGHT - 760);
 
   const sideShade = ctx.createLinearGradient(0, 0, WIDTH, 0);
+
   sideShade.addColorStop(0, "rgba(0, 0, 0, 0.25)");
   sideShade.addColorStop(0.2, "rgba(0, 0, 0, 0)");
   sideShade.addColorStop(0.8, "rgba(0, 0, 0, 0)");
@@ -170,7 +186,9 @@ function drawPhotoOverlays(ctx: CanvasRenderingContext2D): void {
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 }
 
-function drawTopRightGlow(ctx: CanvasRenderingContext2D): void {
+function drawTopRightGlow(
+  ctx: CanvasRenderingContext2D,
+): void {
   const gradient = ctx.createRadialGradient(
     WIDTH,
     0,
@@ -188,7 +206,9 @@ function drawTopRightGlow(ctx: CanvasRenderingContext2D): void {
   ctx.fillRect(0, 0, WIDTH, 620);
 }
 
-function drawNeonFrame(ctx: CanvasRenderingContext2D): void {
+function drawNeonFrame(
+  ctx: CanvasRenderingContext2D,
+): void {
   const left = 80;
   const right = WIDTH - 80;
   const top = 112;
@@ -198,17 +218,32 @@ function drawNeonFrame(ctx: CanvasRenderingContext2D): void {
   ctx.save();
   ctx.beginPath();
 
-  // Gap at the top center allows the person's hair to overlap the frame.
+  // Gap at the top allows the person's hair to overlap the frame.
   ctx.moveTo(left + radius, top);
   ctx.lineTo(330, top);
+
   ctx.moveTo(750, top);
   ctx.lineTo(right - radius, top);
 
   ctx.quadraticCurveTo(right, top, right, top + radius);
   ctx.lineTo(right, bottom - radius);
-  ctx.quadraticCurveTo(right, bottom, right - radius, bottom);
+
+  ctx.quadraticCurveTo(
+    right,
+    bottom,
+    right - radius,
+    bottom,
+  );
+
   ctx.lineTo(left + radius, bottom);
-  ctx.quadraticCurveTo(left, bottom, left, bottom - radius);
+
+  ctx.quadraticCurveTo(
+    left,
+    bottom,
+    left,
+    bottom - radius,
+  );
+
   ctx.lineTo(left, top + radius);
   ctx.quadraticCurveTo(left, top, left + radius, top);
 
@@ -227,13 +262,16 @@ function drawNeonFrame(ctx: CanvasRenderingContext2D): void {
   ctx.restore();
 }
 
-function drawBrandBadge(ctx: CanvasRenderingContext2D): void {
+function drawBrandBadge(
+  ctx: CanvasRenderingContext2D,
+): void {
   const x = 113;
   const y = 146;
   const width = 208;
   const height = 66;
 
   ctx.save();
+
   ctx.fillStyle = ORANGE;
   drawRoundedRect(ctx, x, y, width, height, 26);
 
@@ -241,7 +279,12 @@ function drawBrandBadge(ctx: CanvasRenderingContext2D): void {
   ctx.font = `700 39px ${BODY_FONT}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("mylnder", x + width / 2, y + height / 2 + 1);
+
+  ctx.fillText(
+    "mylnder",
+    x + width / 2,
+    y + height / 2 + 1,
+  );
 
   ctx.restore();
 }
@@ -253,6 +296,7 @@ function drawInstagramIcon(
   size: number,
 ): void {
   ctx.save();
+
   ctx.strokeStyle = ORANGE;
   ctx.lineWidth = 5;
   ctx.lineJoin = "round";
@@ -283,6 +327,7 @@ function drawInstagramIcon(
 
   ctx.fillStyle = ORANGE;
   ctx.fill();
+
   ctx.restore();
 }
 
@@ -293,11 +338,13 @@ function drawGraduationIcon(
   size: number,
 ): void {
   ctx.save();
+
   ctx.fillStyle = ORANGE;
   ctx.strokeStyle = ORANGE;
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
 
+  // Top of the graduation cap.
   ctx.beginPath();
   ctx.moveTo(x, y + size * 0.28);
   ctx.lineTo(x + size * 0.48, y);
@@ -306,6 +353,7 @@ function drawGraduationIcon(
   ctx.closePath();
   ctx.fill();
 
+  // Base of the cap.
   ctx.beginPath();
   ctx.moveTo(x + size * 0.19, y + size * 0.39);
   ctx.lineTo(x + size * 0.19, y + size * 0.68);
@@ -316,7 +364,9 @@ function drawGraduationIcon(
   ctx.closePath();
   ctx.fill();
 
+  // Tassel.
   ctx.lineWidth = 3;
+
   ctx.beginPath();
   ctx.moveTo(x + size * 0.91, y + size * 0.31);
   ctx.lineTo(x + size * 0.91, y + size * 0.66);
@@ -346,16 +396,21 @@ function drawCircularPhotoBadge(
   const innerRadius = radius - borderWidth;
   const diameter = innerRadius * 2;
 
+  // Orange border and glow.
   ctx.save();
+
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fillStyle = ORANGE;
   ctx.shadowColor = ORANGE;
   ctx.shadowBlur = 14;
   ctx.fill();
+
   ctx.restore();
 
+  // Clip the uploaded photo to a circle.
   ctx.save();
+
   ctx.beginPath();
   ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
   ctx.clip();
@@ -384,25 +439,30 @@ function drawCircularPhotoBadge(
 
   ctx.restore();
 
+  // Bright outline around the circular photo.
   ctx.save();
+
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius - 1, 0, Math.PI * 2);
   ctx.strokeStyle = "rgba(255, 195, 145, 0.95)";
   ctx.lineWidth = 1.3;
   ctx.stroke();
+
   ctx.restore();
 }
 
 /**
  * Generates the current Myinder profile template.
- * Call with: generateMyinderTemplate(photo, submission, school)
+ * Keep this three-argument signature compatible with FormPage.tsx.
  */
 export async function generateMyinderTemplate(
   photo: File,
   submission: MyinderSubmission,
   school: School,
 ): Promise<Blob> {
-  if (!photo) throw new Error("Upload at least one photo.");
+  if (!photo) {
+    throw new Error("Upload at least one photo.");
+  }
 
   if (photo.size > MAX_FILE_SIZE) {
     throw new Error("Please choose a photo smaller than 5 MB.");
@@ -414,29 +474,40 @@ export async function generateMyinderTemplate(
 
   const image = await loadImage(photo);
   const canvas = document.createElement("canvas");
+
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
 
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Could not create the Myinder template.");
 
+  if (!ctx) {
+    throw new Error("Could not create the Myinder template.");
+  }
+
+  // Fill the canvas and place the uploaded photo edge to edge.
   ctx.fillStyle = NAVY;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
   drawCoverImage(ctx, image, 0, 0, WIDTH, HEIGHT);
 
+  // Photo shading and orange background effects.
   drawPhotoOverlays(ctx);
   drawTopRightGlow(ctx);
   drawBottomOrangeGlow(ctx);
+
+  // Orange neon border and branding.
   drawNeonFrame(ctx);
   drawBrandBadge(ctx);
 
-  // The current design intentionally omits the school label and bio.
+  // Keep school available for existing callers, but don't display it.
+  // The reference design has no university label or bio.
   void school;
 
   const left = 130;
   const maxTextWidth = 700;
 
   ctx.save();
+
   ctx.fillStyle = WHITE;
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
@@ -446,62 +517,100 @@ export async function generateMyinderTemplate(
 
   // Large profile name.
   const name = submission.name?.trim() || "Myinder Member";
+
   ctx.font = `700 72px ${BODY_FONT}`;
-  ctx.fillText(fitText(ctx, name, maxTextWidth), left, 1030);
+  ctx.fillText(
+    fitText(ctx, name, maxTextWidth),
+    left,
+    1030,
+  );
 
   // Instagram icon and username.
   drawInstagramIcon(ctx, 137, 1067, 56);
 
-  const username = submission.ig_username?.trim().replace(/^@/, "");
-  const instagramLabel = username || "Instagram username not provided";
+  const username = submission.ig_username
+    ?.trim()
+    .replace(/^@/, "");
+
+  const instagramLabel =
+    username || "Instagram username not provided";
 
   ctx.font = `600 34px ${BODY_FONT}`;
-  ctx.fillText(fitText(ctx, instagramLabel, 565), 229, 1107);
 
-  // Orange divider.
-  const divider = ctx.createLinearGradient(137, 1155, 399, 1155);
+  ctx.fillText(
+    fitText(ctx, instagramLabel, 565),
+    229,
+    1107,
+  );
+
+  // Short orange divider beneath the Instagram row.
+  const divider = ctx.createLinearGradient(
+    137,
+    1155,
+    399,
+    1155,
+  );
+
   divider.addColorStop(0, "#FFB27D");
   divider.addColorStop(1, ORANGE);
 
   ctx.save();
+
   ctx.shadowBlur = 0;
   ctx.strokeStyle = divider;
   ctx.lineWidth = 6;
   ctx.lineCap = "round";
+
   ctx.beginPath();
   ctx.moveTo(138, 1155);
   ctx.lineTo(397, 1155);
   ctx.stroke();
+
   ctx.restore();
 
-  // Graduation icon and major.
+  // Graduation cap and major.
   drawGraduationIcon(ctx, 137, 1188, 62);
 
   const major = submission.major?.trim() || "Major not provided";
+
   ctx.font = `600 33px ${BODY_FONT}`;
-  ctx.fillText(fitText(ctx, major, 530), 229, 1225);
+
+  ctx.fillText(
+    fitText(ctx, major, 530),
+    229,
+    1225,
+  );
 
   ctx.restore();
 
-  // Circular photo badge at the lower-right.
+  // Circular thumbnail of the same photo, bottom-right.
   drawCircularPhotoBadge(ctx, image, 907, 1210, 69);
 
   return canvasToBlob(canvas, "image/png");
 }
 
 /**
- * Adds a mylnder badge to one photo and returns a renamed File.
+ * Adds a small mylnder watermark to a photo.
+ * The original file is not modified.
  */
 export async function watermarkPhoto(
   photo: File,
   themeColor: string = ORANGE,
 ): Promise<File> {
-  if (!photo) throw new Error("A photo is required for watermarking.");
+  if (!photo) {
+    throw new Error("A photo is required for watermarking.");
+  }
 
-  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+  ];
 
   if (!allowedTypes.includes(photo.type)) {
-    throw new Error(`${photo.name} is not supported. Use JPEG, PNG, or WebP.`);
+    throw new Error(
+      `${photo.name} is not supported. Use JPEG, PNG, or WebP.`,
+    );
   }
 
   if (photo.size > MAX_FILE_SIZE) {
@@ -510,18 +619,22 @@ export async function watermarkPhoto(
 
   const image = await loadImage(photo);
   const canvas = document.createElement("canvas");
+
   canvas.width = image.naturalWidth;
   canvas.height = image.naturalHeight;
 
   const ctx = canvas.getContext("2d");
 
   if (!ctx) {
-    throw new Error(`Could not prepare ${photo.name} for watermarking.`);
+    throw new Error(
+      `Could not prepare ${photo.name} for watermarking.`,
+    );
   }
 
   ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
   const safeColor = getSafeColor(themeColor);
+
   const scale = Math.max(
     0.45,
     Math.min(canvas.width, canvas.height) / 1080,
@@ -532,6 +645,7 @@ export async function watermarkPhoto(
   const label = "mylnder";
 
   ctx.save();
+
   ctx.font = `700 ${fontSize}px ${BODY_FONT}`;
   ctx.textAlign = "left";
   ctx.textBaseline = "middle";
@@ -539,17 +653,32 @@ export async function watermarkPhoto(
   const textWidth = ctx.measureText(label).width;
   const boxWidth = textWidth + padding * 2;
   const boxHeight = fontSize + padding * 1.4;
+
   const x = Math.round(16 * scale);
   const y = Math.round(16 * scale);
   const radius = Math.round(8 * scale);
 
   ctx.fillStyle = safeColor;
   ctx.globalAlpha = 0.9;
-  drawRoundedRect(ctx, x, y, boxWidth, boxHeight, radius);
+
+  drawRoundedRect(
+    ctx,
+    x,
+    y,
+    boxWidth,
+    boxHeight,
+    radius,
+  );
 
   ctx.globalAlpha = 1;
   ctx.fillStyle = WHITE;
-  ctx.fillText(label, x + padding, y + boxHeight / 2);
+
+  ctx.fillText(
+    label,
+    x + padding,
+    y + boxHeight / 2,
+  );
+
   ctx.restore();
 
   let blob: Blob | null = null;
@@ -560,11 +689,16 @@ export async function watermarkPhoto(
   } else {
     for (const quality of [0.88, 0.78, 0.68, 0.58, 0.48]) {
       blob = await canvasToBlob(canvas, outputType, quality);
-      if (blob.size <= MAX_FILE_SIZE) break;
+
+      if (blob.size <= MAX_FILE_SIZE) {
+        break;
+      }
     }
   }
 
-  if (!blob) throw new Error(`Could not watermark ${photo.name}.`);
+  if (!blob) {
+    throw new Error(`Could not watermark ${photo.name}.`);
+  }
 
   if (blob.size > MAX_FILE_SIZE) {
     throw new Error(
@@ -579,16 +713,21 @@ export async function watermarkPhoto(
         ? ".webp"
         : ".png";
 
-  const baseName = photo.name.replace(/\.[^.]+$/, "") || "myinder-photo";
+  const baseName =
+    photo.name.replace(/\.[^.]+$/, "") || "myinder-photo";
 
-  return new File([blob], `${baseName}-myinder${extension}`, {
-    type: outputType,
-    lastModified: Date.now(),
-  });
+  return new File(
+    [blob],
+    `${baseName}-myinder${extension}`,
+    {
+      type: outputType,
+      lastModified: Date.now(),
+    },
+  );
 }
 
 /**
- * Adds the mylnder badge to every selected photo.
+ * Adds the mylnder watermark to every selected photo.
  */
 export async function watermarkPhotos(
   photos: File[],
